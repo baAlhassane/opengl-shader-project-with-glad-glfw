@@ -1,49 +1,37 @@
-#include <glad/glad.h>
+ï»¿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "Triangle.h"
 #include <iostream>
-
+#include "Cube.h"
+#include <filesystem>
 
 int main() {
-    // init GLFW
-    if (!glfwInit()) {
-        std::cerr << "Erreur init GLFW\n";
-        return -1;
-    }
+    if (!glfwInit()) return -1;
+    std::cout << " Dossier courant : " << std::filesystem::current_path() << std::endl;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Triangle", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Cube OpenGL", nullptr, nullptr);
     if (!window) {
-        std::cerr << "Erreur création fenêtre\n";
         glfwTerminate();
         return -1;
     }
-
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Erreur init GLAD\n";
+        std::cerr << "Erreur : GLAD non chargÃ© !" << std::endl;
         return -1;
     }
 
+    Cube cube;
+    cube.init(window);
 
-    {   // <- début du bloc
-        Triangle triangle;
+    while (!glfwWindowShouldClose(window)) {
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // gris foncÃ©
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        cube.display(window);
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
 
-        while (!glfwWindowShouldClose(window)) {
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            triangle.draw();
-
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-        }
-    }   // <- triangle est détruit ici, AVANT glfwTerminate()
-
+    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
