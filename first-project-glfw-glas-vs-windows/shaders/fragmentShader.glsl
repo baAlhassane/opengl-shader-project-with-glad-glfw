@@ -1,8 +1,9 @@
 #version 330 core
 
-out vec4 color;
+in vec3 vertexColor;      // venant du vertex shader
+out vec4 fragColor;       // couleur finale du pixel
 
 void main(void)
 {
-    color = vec4(1.0, 0.0, 0.0, 1.0); // rouge
+    fragColor = vec4(vertexColor, 1.0); // on ajoute le canal alpha
 }

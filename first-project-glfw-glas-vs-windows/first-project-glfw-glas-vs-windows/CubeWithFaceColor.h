@@ -1,17 +1,20 @@
 #pragma once
+#pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
-class Cube {
+class CubeWithFaceColor
+{
+
 public:
-    Cube();
-    ~Cube();
+    CubeWithFaceColor();
+    ~CubeWithFaceColor();
 
     void init(GLFWwindow* window);          // initialise shaders, vertices
-    void display(GLFWwindow* window);   
+    void display(GLFWwindow* window);
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 private:
@@ -30,3 +33,4 @@ private:
     float cameraX, cameraY, cameraZ;
     float cubeLocX, cubeLocY, cubeLocZ;
 };
+
