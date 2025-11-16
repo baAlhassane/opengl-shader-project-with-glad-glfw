@@ -90,6 +90,11 @@ private:
     int numBars = 0;
 
     bool forceStop = false;
+
+    //pour swap glissement 
+    float currentSwapOffsetRed = 0.0f;
+    float currentSwapOffsetYellow = 0.0f;
+
   
 
 
@@ -400,8 +405,25 @@ void SelectionSortVisualiser::render() {
             r = 0.2f; g = 0.4f; b = 1.0f; a = 1.0f;
         }
 
+
+
         glUniform4f(glGetUniformLocation(shader.id(), "uColor"), r, g, b, a);
-        glUniform1f(glGetUniformLocation(shader.id(), "uOffsetX"), 0.0f);
+        //glUniform1f(glGetUniformLocation(shader.id(), "uOffsetX"), 0.0f);
+
+        // ajouter pour glissement swap 
+        float offset = 0.0f;
+        if (swapping) {
+            if (i == currentIndex) {
+                offset = currentSwapOffsetRed;     // la barre rouge
+            }
+            else if (i == minIndex) {
+                offset = currentSwapOffsetYellow;  // la barre jaune
+            }
+        }
+        // fin ajouter 
+
+        glUniform1f(glGetUniformLocation(shader.id(), "uOffsetX"), offset);
+
 
         glDrawArrays(GL_TRIANGLES, i * 6, 6);
     }
@@ -470,19 +492,53 @@ void SelectionSortVisualiser::selectionSortStep() {
         float posA = -1.0f + currentIndex * step;
         float posB = -1.0f + minIndex * step;
 
-        const int animSteps = 20;
+
+        //  ajouter  Animation du swap 
+        const int animSteps = 30;
+        float totalDist = posB - posA; // distance from i → minIndex
+
+        swapping = true;
+
         for (int s = 0; s <= animSteps; s++) {
             float t = float(s) / animSteps;
-            mobileOffset = t * (posA - posB); // déplace la barre mobile visuellement
 
-            updateBarVertices();
-            render();
+            // la barre rouge se déplace vers minIndex (à droite)
+            currentSwapOffsetRed = t * totalDist;
 
-            glfwSwapBuffers(window);    // présenter l'étape
-            glfwPollEvents();           // traiter les évènements (important pour la fermeture)
+            // la barre jaune se déplace vers currentIndex (à gauche)
+            currentSwapOffsetYellow = -t * totalDist;
 
+            updateBarVertices();   // met à jour les hauteurs
+            render();              // dessin avec offset
+
+            glfwSwapBuffers(window);
+            glfwPollEvents();
             std::this_thread::sleep_for(std::chrono::milliseconds(150));
         }
+
+        swapping = false;
+        currentSwapOffsetRed = 0.0f;
+        currentSwapOffsetYellow = 0.0f;
+//  Fin  ajouter pour swap  gilissement 
+
+
+
+        // commenter pour swap gilisssement 
+        //const int animSteps = 20;
+        //for (int s = 0; s <= animSteps; s++) {
+        //    float t = float(s) / animSteps;
+        //    mobileOffset = t * (posA - posB); // déplace la barre mobile visuellement
+
+        //    updateBarVertices();
+        //    render();
+
+        //    glfwSwapBuffers(window);    // présenter l'étape
+        //    glfwPollEvents();           // traiter les évènements (important pour la fermeture)
+
+        //    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+        //}
+
+        // Fin commenter pour swap glissement
 
         std::swap(values[currentIndex], values[minIndex]);
 
